@@ -3,7 +3,7 @@ const mongoose = require("mongoose")
 const baseSchema = new mongoose.Schema({
     firstName:{
         type:String,
-        require:fase
+        require:false
     },
     lastName:{
         type:String,

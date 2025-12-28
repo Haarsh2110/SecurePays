@@ -1,6 +1,8 @@
 const User =require("../model/user")
 const bcrypt = require("bcrypt")
 const disposableEmailDomains = require("disposable-email-domains")
+const sendEmail = require("../utils/emailService")
+const { generateOtp } = require("../utils/otpService")
 
 const loginUser = async(req,resp)=>{
      try {
@@ -43,10 +45,13 @@ const loginUser = async(req,resp)=>{
             const isMatched = await bcrypt.compare(password,existingUser.password)
             if(!isMatched){
                 resp.status(400).send({message:"Invalid Credentials"})
+                return
             }
 
             if(!existingUser.verified){
-                // otp to email
+                const otp = generateOtp(updatedEmail)
+                await sendEmail(resp,200,updatedEmail,otp)
+                return
             }
 
             if(!existingUser.service){
@@ -61,8 +66,10 @@ const loginUser = async(req,resp)=>{
         const salt = await bcrypt.genSalt(10)
         const hashedPassword = await bcrypt.hash(password,salt)
 
-        const result = await User.create({updatedEmail,hashedPassword})
-        resp.status(201).send({message:"Login successfully",data:result});
+        const result = await User.create({email:updatedEmail,password:hashedPassword})
+        const otp = generateOtp(updatedEmail)
+        await sendEmail(resp,201,updatedEmail,otp)
+
     } catch (error) {
         resp.status(500).send({message:"Internal Server Error",error})
     }    

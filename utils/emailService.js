@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+const {deleteOtp} = require("./otpService")
 require("dotenv").config();
 
 let transporter = nodemailer.createTransport({
@@ -22,6 +23,7 @@ const sendEmail = async(resp,statusCode,email,otp) => {
     console.log("Email sent:" + info)
     resp.status(statusCode).send({message:"Otp sent to your email!"})
   } catch (error) {
+    if(otp) deleteOtp(email)
       resp.status(502).send({message:"Service Unavailable. Otp not sent!"})
   }
 };

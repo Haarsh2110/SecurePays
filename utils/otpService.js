@@ -15,7 +15,30 @@ const generateOtp = (email)=>{
     },OTP_EXPIRY_TIME)
 
     return otp
-
 }
 
-module.exports = { generateOtp };
+const verifyOtp = (email,otp)=>{
+    const otpEntry = otpMap.get(email)
+    if (!otpEntry) {
+        return { status: false, message: "OTP not found or expired" };
+    }
+
+    if (Date.now() > otpEntry.expiry) {
+        otpMap.delete(email);
+        return { status: false, message: "OTP expired" };
+    }
+
+    if (otpEntry.otp === otp) {
+        otpMap.delete(email);
+        return { status: true, message: "OTP verified successfully" };
+    }
+
+    return { status: false, message: "Invalid OTP" };
+};
+
+const deleteOtp = (email)=>{
+    const otpEntry = otpMap.get(email);
+    if(otpEntry) otpMap.delete(email);
+};
+
+module.exports = { generateOtp , verifyOtp , deleteOtp };

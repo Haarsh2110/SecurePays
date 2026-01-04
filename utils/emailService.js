@@ -25,6 +25,6 @@ const sendEmail = async(resp,statusCode,email,otp) => {
   } catch (error) {
     if(otp) deleteOtp(email)
       resp.status(502).send({message:"Service Unavailable. Otp not sent!"})
-  }
+  } 
 };
 module.exports = sendEmail

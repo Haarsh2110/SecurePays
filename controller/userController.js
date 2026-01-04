@@ -98,7 +98,7 @@ const verifyUser = async (req, resp) => {
   try {
     const { email, otp } = req.body;
 
-    if (!email || typeof emsil != "string") {
+    if (!email || typeof email != "string") {
       resp.status(404).send({ message: "Invalid or missing email" });
       return;
     }
@@ -129,7 +129,7 @@ const verifyUser = async (req, resp) => {
     const existingUser = await User.findOne({ email: updatedEmail }).select(
       "-password"
     );
-    if (existingUser) {
+    if (!existingUser) {
       resp.status(400).send({ message: "User not found in the database" });
       return;
     }
@@ -162,7 +162,10 @@ const verifyUser = async (req, resp) => {
     const token = jwt.sign(payload, process.env.SECRET_KEY);
     resp.status(200).send({ message: result.message, data: { token } });
     return;
-  } catch (error) {}
+  } catch (error) {
+    console.log(error)
+    resp.status(500).send({message:"Internal Server Error",error})
+  }
 };
 
 module.exports = { loginUser, verifyUser };

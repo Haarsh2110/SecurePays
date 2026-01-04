@@ -1,24 +1,25 @@
-const crypto = require("crypto")
+const crypto = require("crypto");
 
-const otpMap = new Map()
-const OTP_EXPIRY_TIME = 5 * 60 * 1000
+const otpMap = new Map();
+const OTP_EXPIRY_TIME = 5 * 60 * 1000; // 5 minutes in milliseconds
 
-const generateOtp = (email)=>{
-    const number = crypto.randomInt(0,1000000)
-    const otp = String(number).padStart(6,"0")
-    const expiry = Date.now() + OTP_EXPIRY_TIME
-    otpMap.set(email,{otp,expiry})
+const generateOtp = (email) => {
+    const number = crypto.randomInt(0, 1000000);
+    const otp = String(number).padStart(6, "0"); 
+    const expiry = Date.now() + OTP_EXPIRY_TIME;
+    otpMap.set(email, { otp, expiry });
 
-    setTimeout(()=>{
-        const otpEntry = otpMap.get(email)
-        if(otpEntry) otpMap.delete(email)
-    },OTP_EXPIRY_TIME)
+    setTimeout(() => {
+        const otpEntry = otpMap.get(email);
+        if(otpEntry) otpMap.delete(email);
+    }, OTP_EXPIRY_TIME);
+    
+    return otp;
+};
 
-    return otp
-}
+const verifyOtp = (email, otp) => {
+    const otpEntry = otpMap.get(email);
 
-const verifyOtp = (email,otp)=>{
-    const otpEntry = otpMap.get(email)
     if (!otpEntry) {
         return { status: false, message: "OTP not found or expired" };
     }
@@ -36,9 +37,9 @@ const verifyOtp = (email,otp)=>{
     return { status: false, message: "Invalid OTP" };
 };
 
-const deleteOtp = (email)=>{
+const deleteOtp = (email) => {
     const otpEntry = otpMap.get(email);
     if(otpEntry) otpMap.delete(email);
 };
 
-module.exports = { generateOtp , verifyOtp , deleteOtp };
+module.exports = { generateOtp,verifyOtp,deleteOtp };
